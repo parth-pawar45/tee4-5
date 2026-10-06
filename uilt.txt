@@ -1,0 +1,397 @@
+1a)
+import collections
+
+def bfs(graph, root):
+
+    seen = set([root])
+    queue = collections.deque([root])
+
+    while queue:
+
+        vertex = queue.popleft()
+
+        visit(vertex)
+
+        for node in graph[vertex]:
+
+            if node not in seen:
+
+                seen.add(node)
+                queue.append(node)
+
+
+# Visit function
+def visit(n):
+    print(n)
+
+
+# Find all paths
+def allpath(st, end, gr):
+
+    todo = [(st, [st])]
+
+    while todo:
+
+        node, path = todo.pop(0)
+
+        for next_node in gr[node]:
+
+            if next_node in path:
+                continue
+
+            if next_node == end:
+                yield path + [next_node]
+
+            else:
+                todo.append((next_node, path + [next_node]))
+
+
+# Find shortest path using BFS
+def bfs_shortest_path(graph, source, destination):
+
+    checked = []
+    queue = [[source]]
+
+    if source == destination:
+        return "SOURCE IS DESTINATION"
+
+    while queue:
+
+        path = queue.pop(0)
+
+        node = path[-1]
+
+        if node not in checked:
+
+            neighbours = graph[node]
+
+            for neighbour in neighbours:
+
+                new_path = list(path)
+                new_path.append(neighbour)
+
+                queue.append(new_path)
+
+                if neighbour == destination:
+                    return new_path
+
+            checked.append(node)
+
+    return "PATH DOES NOT EXIST"
+
+
+# Graph
+graph = {
+    'A': ['B', 'D'],
+    'B': ['C', 'F'],
+    'C': ['E', 'G'],
+    'G': ['E'],
+    'E': ['B', 'F'],
+    'F': ['A'],
+    'D': ['F']
+}
+
+
+# BFS Traversal
+print("GRAPH TRAVERSAL")
+bfs(graph, 'A')
+
+
+# All paths
+print("\nALL PATHS FROM A TO E")
+
+for x in allpath('A', 'E', graph):
+    print(x)
+
+
+# Shortest path
+print("\nSHORTEST PATH FROM A TO E")
+
+print(bfs_shortest_path(graph, 'A', 'E'))
+
+
+
+
+======================================
+
+1b)
+
+graph = {
+    'M': ['N', 'O', 'Q', 'R'],
+    'N': ['M', 'O', 'Q'],
+    'O': ['N', 'P'],
+    'P': ['O', 'Q'],
+    'Q': ['M', 'P'],
+    'R': ['M']
+}
+
+
+def dfs(g, n, seen, destination):
+
+    if n not in seen:
+
+        seen.append(n)
+
+        if n == destination:
+            return seen
+
+        for i in g[n]:
+
+            if i not in seen:
+
+                result = dfs(g, i, seen, destination)
+
+                if result[-1] == destination:
+                    return result
+
+    return seen
+
+
+print("DFS Traversal:")
+
+result = dfs(graph, 'M', [], 'R')
+
+print(result)
+
+
+
+
+======================================
+
+
+2a)Nqueen 
+def print_board(board):
+    for row in board:
+        print(" ".join(row))
+    print()
+
+
+def check_queen(board, row, col, n):
+
+    # Check column
+    for i in range(row):
+        if board[i][col] == 'Q':
+            return False
+
+    # Check upper-left diagonal
+    i, j = row - 1, col - 1
+
+    while i >= 0 and j >= 0:
+        if board[i][j] == 'Q':
+            return False
+        i -= 1
+        j -= 1
+
+    # Check upper-right diagonal
+    i, j = row - 1, col + 1
+
+    while i >= 0 and j < n:
+        if board[i][j] == 'Q':
+            return False
+        i -= 1
+        j += 1
+
+    return True
+
+
+def solve_queens(board, row, n):
+
+    if row == n:
+        print_board(board)
+        return
+
+    for col in range(n):
+
+        if check_queen(board, row, col, n):
+
+            board[row][col] = 'Q'
+
+            solve_queens(board, row + 1, n)
+
+            board[row][col] = '.'
+
+
+n = int(input("Enter the value of N: "))
+
+board = [['.' for _ in range(n)] for _ in range(n)]
+
+print("N-Queens Solutions:")
+
+solve_queens(board, 0, n)
+
+
+
+==================================================
+
+
+2b)tower of hanoi
+def hanoi(n, source, destination, auxiliary):
+    if n == 1:
+        print("Move disk from", source, "to", destination)
+        return
+
+    hanoi(n - 1, source, auxiliary, destination)
+
+    print("Move disk from", source, "to", destination)
+
+    hanoi(n - 1, auxiliary, destination, source)
+
+
+n = int(input("Enter number of disks: "))
+
+hanoi(n, "A", "C", "B")
+
+
+
+
+===============================================
+3b)
+
+tree = {
+    'A': ['B', 'C'],
+    'B': ['D', 'E'],
+    'C': ['F', 'G'],
+    'D': [4, 3],
+    'E': [6, 2],
+    'F': [2, 1],
+    'G': [9, 5]
+}
+
+
+def minimax_alpha_beta(node, depth, alpha, beta, max_player):
+
+    # Leaf node
+    if isinstance(node, int):
+        return node
+
+    # Maximum depth reached
+    if depth == 0:
+        return 0
+
+    if max_player:
+
+        value = float('-inf')
+
+        for child in tree[node]:
+
+            value = max(
+                value,
+                minimax_alpha_beta(
+                    child, depth - 1, alpha, beta, False
+                )
+            )
+
+            alpha = max(alpha, value)
+
+            # Alpha-Beta pruning
+            if beta <= alpha:
+                print("Pruning branch at node", node)
+                break
+
+        return value
+
+    else:
+
+        value = float('inf')
+
+        for child in tree[node]:
+
+            value = min(
+                value,
+                minimax_alpha_beta(
+                    child, depth - 1, alpha, beta, True
+                )
+            )
+
+            beta = min(beta, value)
+
+            # Alpha-Beta pruning
+            if beta <= alpha:
+                print("Pruning branch at node", node)
+                break
+
+        return value
+
+
+best_score = minimax_alpha_beta(
+    'A',
+    3,
+    float('-inf'),
+    float('inf'),
+    True
+)
+
+print("The best score is:", best_score)
+
+==============================================
+
+
+3a)
+import random
+
+distance = [
+    [0, 20, 2, 9],
+    [20, 0, 6, 4],
+    [2, 6, 0, 3],
+    [9, 4, 3, 0]
+]
+
+
+def get_cost(tour):
+
+    cost = 0
+
+    for i in range(len(tour)):
+
+        cost += distance[tour[i - 1]][tour[i]]
+
+    return cost
+
+
+def get_neighbor(tour):
+
+    neighbor = tour[:]
+
+    a, b = random.sample(range(len(tour)), 2)
+
+    neighbor[a], neighbor[b] = neighbor[b], neighbor[a]
+
+    return neighbor
+
+
+def hill_climb():
+
+    current = [0, 1, 2, 3]
+
+    random.shuffle(current)
+
+    current_cost = get_cost(current)
+
+    print("Starting tour:", current)
+    print("Starting cost:", current_cost)
+
+    for i in range(10):
+
+        neighbor = get_neighbor(current)
+
+        neighbor_cost = get_cost(neighbor)
+
+        print("Neighbor:", neighbor)
+        print("Neighbor cost:", neighbor_cost)
+
+        if neighbor_cost < current_cost:
+
+            current = neighbor
+            current_cost = neighbor_cost
+
+            print("Better neighbor found!")
+            print("Current tour:", current)
+            print("Current cost:", current_cost)
+
+    print("\nBest tour:", current)
+    print("Best cost:", current_cost)
+
+    return current, current_cost
+
+
+best_tour, best_cost = hill_climb()
